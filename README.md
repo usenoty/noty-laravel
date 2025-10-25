@@ -1,10 +1,10 @@
 # Noty Laravel
 
 [![Latest Version](https://img.shields.io/packagist/v/usenoty/noty-laravel.svg)](https://packagist.org/packages/usenoty/noty-laravel)
-[![License](https://img.shields.io/packagist/l/usenoty/noty-laravel.svg)](https://packagist.org/packages/usenoty/noty-laravel)
-[![Tests](https://github.com/noty/noty-laravel/workflows/Tests/badge.svg)](https://github.com/noty/noty-laravel/actions)
-[![PHP Version](https://img.shields.io/badge/PHP-8.1%20|%208.2%20|%208.3-blue.svg)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20|%2011.x%20|%2012.x-red.svg)](https://laravel.com)
+[![License](https://img.shields.io/packagist/l/usenoty/noty-laravel)](https://packagist.org/packages/usenoty/noty-laravel)
+[![Tests](https://github.com/usenoty/noty-laravel/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/usenoty/noty-laravel/actions/workflows/tests.yml)
+[![PHP Version](https://img.shields.io/badge/PHP-8.1%20|%208.2%20|%208.3%20|%208.4-blue.svg)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20|%2011.x-red.svg)](https://laravel.com)
 
 A **non-blocking** notification channel for Laravel that sends events to Noty API. Perfect for tracking user activities, application events, and telemetry data without impacting your app's performance.
 
@@ -349,23 +349,45 @@ public function login(Request $request)
 
 ## 📋 Requirements
 
-- **PHP**: 8.1, 8.2, or 8.3
-- **Laravel**: 10.x, 11.x, or 12.x
+- **PHP**: 8.1, 8.2, 8.3, or 8.4
+- **Laravel**: 10.x or 11.x
 - **Guzzle**: 7.x
 
 ## 🔄 Supported Versions
 
 | Laravel | PHP  | Status |
 |---------|------|--------|
-| 12.x    | 8.2+ | ✅ Active |
 | 11.x    | 8.2+ | ✅ Active |
 | 10.x    | 8.1+ | ✅ Active |
 | 9.x     | 8.0+ | ❌ Unsupported |
 | 8.x     | 7.3+ | ❌ Unsupported |
 
+## 🧪 Testing
+
+This package is thoroughly tested with:
+
+- **47 tests** covering all functionality
+- **91 assertions** ensuring reliability
+- **PHPStan Level 5** static analysis
+- **Multiple PHP versions** (8.1, 8.2, 8.3, 8.4)
+- **Multiple Laravel versions** (10.x, 11.x)
+
+### Running Tests
+
+```bash
+# Run all tests
+composer test
+
+# Run with coverage
+composer test-coverage
+
+# Run static analysis
+composer phpstan
+```
+
 ## 📄 License
 
-MIT License
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
 ---
 
