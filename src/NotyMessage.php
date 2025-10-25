@@ -6,13 +6,13 @@ class NotyMessage
 {
     // Priority constants
     public const PRIORITY_HIGH = 'HIGH';
-    public const PRIORITY_MEDIUM = 'MEDIUM';
+    public const PRIORITY_NORMAL = 'NORMAL';
     public const PRIORITY_LOW = 'LOW';
 
     protected string $title;
     protected ?string $message = null;
     protected ?string $channel = null;
-    protected string $priority = self::PRIORITY_MEDIUM;
+    protected string $priority = self::PRIORITY_NORMAL;
     protected array $actions = [];
     protected array $attachments = [];
     protected array $tags = [];

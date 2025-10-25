@@ -177,7 +177,7 @@ NotyMessage::create('Payment Received')
 
 ```php
 NotyMessage::PRIORITY_HIGH    // High priority
-NotyMessage::PRIORITY_MEDIUM  // Medium priority (default)
+NotyMessage::PRIORITY_NORMAL  // Normal priority (default)
 NotyMessage::PRIORITY_LOW     // Low priority
 ```
 

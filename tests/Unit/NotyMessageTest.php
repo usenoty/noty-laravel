@@ -28,7 +28,7 @@ class NotyMessageTest extends TestCase
         $data = NotyMessage::create('Test Title')->toArray();
 
         $this->assertEquals('Test Title', $data['title']);
-        $this->assertEquals(NotyMessage::PRIORITY_MEDIUM, $data['priority']);
+        $this->assertEquals(NotyMessage::PRIORITY_NORMAL, $data['priority']);
         $this->assertEquals([], $data['actions']);
         $this->assertEquals([], $data['attachments']);
         $this->assertEquals([], $data['tags']);
