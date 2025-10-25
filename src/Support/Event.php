@@ -34,7 +34,7 @@ class Event
     {
         $data = [
             'channel' => $this->channel,
-            'title'   => $this->title,
+            'title' => $this->title,
         ];
 
         // Only include optional fields if they have values

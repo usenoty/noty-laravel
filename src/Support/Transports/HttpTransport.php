@@ -13,6 +13,7 @@ class HttpTransport implements TransportInterface
     protected array $options;
     protected GuzzleClient $http;
     protected ?string $token;
+
     /** @var PromiseInterface[] */
     protected array $pending = [];
 
@@ -23,7 +24,7 @@ class HttpTransport implements TransportInterface
         $this->options = $httpOptions;
         $this->token = $token;
         $this->http = new GuzzleClient([
-            'timeout'         => $httpOptions['timeout'] ?? 0.5,
+            'timeout' => $httpOptions['timeout'] ?? 0.5,
             'connect_timeout' => $httpOptions['connect_timeout'] ?? 0.25,
         ]);
     }
@@ -41,7 +42,7 @@ class HttpTransport implements TransportInterface
         try {
             $promise = $this->http->postAsync($this->endpoint, [
                 'headers' => $headers,
-                'json'    => $event->toArray(),
+                'json' => $event->toArray(),
             ]);
 
             $this->pending[] = $promise;

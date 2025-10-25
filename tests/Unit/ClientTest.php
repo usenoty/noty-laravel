@@ -2,12 +2,16 @@
 
 namespace Noty\Laravel\Tests\Unit;
 
-use Mockery;
 use Noty\Laravel\Support\Client;
 use Noty\Laravel\Support\Event;
 use Noty\Laravel\Support\Transports\TransportInterface;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class ClientTest extends TestCase
 {
     protected TransportInterface $transport;
@@ -17,27 +21,28 @@ class ClientTest extends TestCase
     {
         parent::setUp();
 
-        $this->transport = Mockery::mock(TransportInterface::class);
+        $this->transport = \Mockery::mock(TransportInterface::class);
         $this->client = new Client($this->transport);
     }
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        \Mockery::close();
         parent::tearDown();
     }
 
     /** @test */
-    public function it_captures_event_with_default_channel(): void
+    public function itCapturesEventWithDefaultChannel(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 return $event->channel === 'channel_general'
                     && $event->title === 'Test Title'
                     && $event->message === 'Test Message';
             }))
-            ->andReturn('channel_general');
+            ->andReturn('channel_general')
+        ;
 
         $result = $this->client->captureEvent([
             'title' => 'Test Title',
@@ -48,14 +53,15 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function it_captures_event_with_specific_channel(): void
+    public function itCapturesEventWithSpecificChannel(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 return $event->channel === 'channel_auth';
             }))
-            ->andReturn('channel_auth');
+            ->andReturn('channel_auth')
+        ;
 
         $result = $this->client->captureEvent([
             'title' => 'Test',
@@ -66,38 +72,40 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function it_captures_full_featured_event(): void
+    public function itCapturesFullFeaturedEvent(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 return $event->title === 'Test'
                     && $event->priority === 'HIGH'
                     && count($event->actions) === 1
                     && $event->tags['user_id'] === '123';
             }))
-            ->andReturn('channel_general');
+            ->andReturn('channel_general')
+        ;
 
         $result = $this->client->captureEvent([
             'title' => 'Test',
             'channel' => 'general',
             'priority' => 'HIGH',
             'actions' => [['name' => 'Action']],
-            'tags' => ['user_id' => '123']
+            'tags' => ['user_id' => '123'],
         ]);
 
         $this->assertEquals('channel_general', $result);
     }
 
     /** @test */
-    public function it_resolves_named_channels_to_ids(): void
+    public function itResolvesNamedChannelsToIds(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 return $event->channel === 'channel_auth';
             }))
-            ->andReturn('channel_auth');
+            ->andReturn('channel_auth')
+        ;
 
         $this->client->captureEvent([
             'title' => 'Test',
@@ -108,14 +116,15 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function it_accepts_direct_channel_ids(): void
+    public function itAcceptsDirectChannelIds(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 return $event->channel === 'channel_direct_id_xyz';
             }))
-            ->andReturn('channel_direct_id_xyz');
+            ->andReturn('channel_direct_id_xyz')
+        ;
 
         $this->client->captureEvent([
             'title' => 'Test',
@@ -126,11 +135,12 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function it_flushes_transport(): void
+    public function itFlushesTransport(): void
     {
         $this->transport->shouldReceive('flush')
             ->once()
-            ->with(1.0);
+            ->with(1.0)
+        ;
 
         $this->client->flush(1.0);
 
@@ -138,29 +148,27 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function it_passes_tags_as_is(): void
+    public function itPassesTagsAsIs(): void
     {
         $this->transport->shouldReceive('send')
             ->once()
-            ->with(Mockery::on(function (Event $event) {
+            ->with(\Mockery::on(function (Event $event) {
                 // Ensure tags are passed as-is without normalization
-                return is_array($event->tags) 
+                return is_array($event->tags)
                     && $event->tags['user_id'] === 123
                     && $event->tags['count'] === 5;
             }))
-            ->andReturn('channel_general');
+            ->andReturn('channel_general')
+        ;
 
         $this->client->captureEvent([
             'title' => 'Test',
             'tags' => [
                 'user_id' => 123,
-                'count' => 5
-            ]
+                'count' => 5,
+            ],
         ]);
 
         $this->assertTrue(true); // Assertion done in mock
     }
-
-
 }
-

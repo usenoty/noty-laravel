@@ -20,5 +20,5 @@ return (new Config())
         '@PhpCsFixer' => true,
         'array_syntax' => ['syntax' => 'short'],
         'yoda_style' => false,
-        'method_chaining_indentation' => false,
+        'concat_space' => ['spacing' => 'one'],
     ]);

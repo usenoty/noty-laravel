@@ -3,11 +3,15 @@
 namespace Noty\Laravel\Tests\Unit;
 
 use Illuminate\Notifications\Notification;
-use Mockery;
 use Noty\Laravel\Notifications\Channels\NotyChannel;
 use Noty\Laravel\Support\Client;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class NotyChannelTest extends TestCase
 {
     protected Client $client;
@@ -17,26 +21,27 @@ class NotyChannelTest extends TestCase
     {
         parent::setUp();
 
-        $this->client = Mockery::mock(Client::class);
+        $this->client = \Mockery::mock(Client::class);
         $this->channel = new NotyChannel($this->client);
     }
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        \Mockery::close();
         parent::tearDown();
     }
 
     /** @test */
-    public function it_sends_notification_via_channel(): void
+    public function itSendsNotificationViaChannel(): void
     {
         $notification = new TestNotification();
         $notifiable = new TestNotifiable();
 
         $this->client->shouldReceive('captureEvent')
             ->once()
-            ->with(Mockery::type('array'))
-            ->andReturn('channel_123');
+            ->with(\Mockery::type('array'))
+            ->andReturn('channel_123')
+        ;
 
         $this->channel->send($notifiable, $notification);
 
@@ -44,7 +49,7 @@ class NotyChannelTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_notifiable_context_to_tags(): void
+    public function itAddsNotifiableContextToTags(): void
     {
         $notification = new TestNotification();
         $notifiable = new TestNotifiable();
@@ -52,7 +57,7 @@ class NotyChannelTest extends TestCase
 
         $this->client->shouldReceive('captureEvent')
             ->once()
-            ->with(Mockery::on(function ($data) {
+            ->with(\Mockery::on(function ($data) {
                 return isset($data['title'])
                     && $data['title'] === 'Test Notification'
                     && isset($data['tags']['notifiable_type'])
@@ -60,7 +65,8 @@ class NotyChannelTest extends TestCase
                     && $data['tags']['notifiable_id'] === '456'
                     && $data['tags']['custom'] === 'value';
             }))
-            ->andReturn('channel_123');
+            ->andReturn('channel_123')
+        ;
 
         $this->channel->send($notifiable, $notification);
 
@@ -68,7 +74,7 @@ class NotyChannelTest extends TestCase
     }
 
     /** @test */
-    public function it_ignores_notifications_without_to_noty_method(): void
+    public function itIgnoresNotificationsWithoutToNotyMethod(): void
     {
         $notification = new NotificationWithoutToNoty();
         $notifiable = new TestNotifiable();
@@ -81,7 +87,7 @@ class NotyChannelTest extends TestCase
     }
 
     /** @test */
-    public function it_handles_send_failures_gracefully(): void
+    public function itHandlesSendFailuresGracefully(): void
     {
         $notification = new TestNotificationWithException();
         $notifiable = new TestNotifiable();
@@ -111,7 +117,7 @@ class TestNotification extends Notification
             'title' => 'Test Notification',
             'message' => 'Test message',
             'priority' => 'HIGH',
-            'tags' => ['custom' => 'value']
+            'tags' => ['custom' => 'value'],
         ];
     }
 }
@@ -128,4 +134,3 @@ class TestNotificationWithException extends Notification
         throw new \Exception('Test exception');
     }
 }
-

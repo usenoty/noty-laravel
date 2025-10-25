@@ -2,6 +2,8 @@
 
 namespace Noty\Laravel;
 
+use Noty\Laravel\Support\Client;
+
 class NotyMessage
 {
     // Priority constants
@@ -19,15 +21,7 @@ class NotyMessage
     protected ?string $emoji = null;
 
     /**
-     * Create a new Noty message
-     */
-    public static function create(string $title): static
-    {
-        return new static($title);
-    }
-
-    /**
-     * Constructor
+     * Constructor.
      */
     public function __construct(string $title)
     {
@@ -35,34 +29,45 @@ class NotyMessage
     }
 
     /**
-     * Set the message body
+     * Create a new Noty message.
+     */
+    public static function create(string $title): static
+    {
+        return new static($title);
+    }
+
+    /**
+     * Set the message body.
      */
     public function message(?string $message): static
     {
         $this->message = $message;
+
         return $this;
     }
 
     /**
-     * Set the channel (named or direct ID)
+     * Set the channel (named or direct ID).
      */
     public function channel(?string $channel): static
     {
         $this->channel = $channel;
+
         return $this;
     }
 
     /**
-     * Set the priority
+     * Set the priority.
      */
     public function priority(string $priority): static
     {
         $this->priority = $priority;
+
         return $this;
     }
 
     /**
-     * Add an action button
+     * Add an action button.
      */
     public function action(string $name, string $url, bool $browser = false): static
     {
@@ -71,11 +76,12 @@ class NotyMessage
             'url' => $url,
             'browser' => $browser,
         ];
+
         return $this;
     }
 
     /**
-     * Add multiple actions at once
+     * Add multiple actions at once.
      */
     public function actions(array $actions): static
     {
@@ -86,58 +92,52 @@ class NotyMessage
                 $action['browser'] ?? false
             );
         }
+
         return $this;
     }
 
     /**
-     * Add an attachment
+     * Add an attachment.
      */
     public function attachment(array $attachment): static
     {
         $this->attachments[] = $attachment;
+
         return $this;
     }
 
     /**
-     * Add a tag for filtering
+     * Add a tag for filtering.
      */
     public function tag(string $key, mixed $value): static
     {
         $this->tags[$key] = $value;
+
         return $this;
     }
 
     /**
-     * Add multiple tags at once
+     * Add multiple tags at once.
      */
     public function tags(array $tags): static
     {
         $this->tags = array_merge($this->tags, $tags);
+
         return $this;
     }
 
     /**
-     * Add an emoji prefix to the title
+     * Add an emoji prefix to the title.
      */
     public function emoji(string $emoji): static
     {
         $this->emoji = $emoji;
+
         return $this;
     }
 
     /**
-     * Build the title with emoji prefix if set
-     */
-    protected function getTitle(): string
-    {
-        if ($this->emoji) {
-            return $this->emoji . ' ' . $this->title;
-        }
-        return $this->title;
-    }
-
-    /**
-     * Convert to array for captureEvent
+     * Convert to array for captureEvent.
      */
     public function toArray(): array
     {
@@ -174,11 +174,22 @@ class NotyMessage
     }
 
     /**
-     * Send the message via Noty
+     * Send the message via Noty.
      */
     public function send(): ?string
     {
-        return app(\Noty\Laravel\Support\Client::class)->captureEvent($this->toArray());
+        return app(Client::class)->captureEvent($this->toArray());
     }
 
+    /**
+     * Build the title with emoji prefix if set.
+     */
+    protected function getTitle(): string
+    {
+        if ($this->emoji) {
+            return $this->emoji . ' ' . $this->title;
+        }
+
+        return $this->title;
+    }
 }

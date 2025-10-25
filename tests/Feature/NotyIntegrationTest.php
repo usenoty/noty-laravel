@@ -7,10 +7,15 @@ use Noty\Laravel\Facades\Noty;
 use Noty\Laravel\Jobs\SendNotyEvents;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class NotyIntegrationTest extends TestCase
 {
     /** @test */
-    public function it_captures_event_via_facade(): void
+    public function itCapturesEventViaFacade(): void
     {
         $result = Noty::captureEvent([
             'title' => 'Test Title',
@@ -21,7 +26,7 @@ class NotyIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function it_resolves_named_channels(): void
+    public function itResolvesNamedChannels(): void
     {
         $result = Noty::captureEvent([
             'title' => 'Payment received',
@@ -32,7 +37,7 @@ class NotyIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_full_featured_event(): void
+    public function itSendsFullFeaturedEvent(): void
     {
         $result = Noty::captureEvent([
             'title' => 'Test Event',
@@ -40,16 +45,16 @@ class NotyIntegrationTest extends TestCase
             'channel' => 'general',
             'priority' => 'HIGH',
             'actions' => [
-                ['name' => 'Action 1', 'url' => 'http://example.com']
+                ['name' => 'Action 1', 'url' => 'http://example.com'],
             ],
-            'tags' => ['user_id' => '123']
+            'tags' => ['user_id' => '123'],
         ]);
 
         $this->assertIsString($result);
     }
 
     /** @test */
-    public function it_uses_helper_function(): void
+    public function itUsesHelperFunction(): void
     {
         $result = noty()->captureEvent([
             'title' => 'Test from helper',
@@ -59,7 +64,7 @@ class NotyIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function it_flushes_events(): void
+    public function itFlushesEvents(): void
     {
         Noty::captureEvent(['title' => 'Event 1']);
         Noty::captureEvent(['title' => 'Event 2']);
@@ -71,8 +76,48 @@ class NotyIntegrationTest extends TestCase
     }
 }
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class NotyQueueIntegrationTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Queue::fake();
+    }
+
+    /** @test */
+    public function itDispatchesToQueueWhenBatchFull(): void
+    {
+        Noty::captureEvent(['title' => 'Event 1']);
+        Queue::assertNothingPushed();
+
+        Noty::captureEvent(['title' => 'Event 2']);
+        Queue::assertPushed(SendNotyEvents::class, 1);
+    }
+
+    /** @test */
+    public function itDispatchesRemainingEventsOnFlush(): void
+    {
+        Noty::captureEvent(['title' => 'Event 1']);
+        Queue::assertNothingPushed();
+
+        Noty::flush();
+        Queue::assertPushed(SendNotyEvents::class, 1);
+    }
+
+    /** @test */
+    public function itWorksWithMultipleChannelsInQueueMode(): void
+    {
+        Noty::captureEvent(['title' => 'Auth event', 'channel' => 'auth']);
+        Noty::captureEvent(['title' => 'Payment event', 'channel' => 'payments']);
+
+        Queue::assertPushed(SendNotyEvents::class, 1);
+    }
+
     protected function defineEnvironment($app): void
     {
         parent::defineEnvironment($app);
@@ -83,40 +128,4 @@ class NotyQueueIntegrationTest extends TestCase
         $app['config']->set('noty.queue.connection', null);
         $app['config']->set('noty.queue.queue_name', 'noty-test');
     }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Queue::fake();
-    }
-
-    /** @test */
-    public function it_dispatches_to_queue_when_batch_full(): void
-    {
-        Noty::captureEvent(['title' => 'Event 1']);
-        Queue::assertNothingPushed();
-
-        Noty::captureEvent(['title' => 'Event 2']);
-        Queue::assertPushed(SendNotyEvents::class, 1);
-    }
-
-    /** @test */
-    public function it_dispatches_remaining_events_on_flush(): void
-    {
-        Noty::captureEvent(['title' => 'Event 1']);
-        Queue::assertNothingPushed();
-
-        Noty::flush();
-        Queue::assertPushed(SendNotyEvents::class, 1);
-    }
-
-    /** @test */
-    public function it_works_with_multiple_channels_in_queue_mode(): void
-    {
-        Noty::captureEvent(['title' => 'Auth event', 'channel' => 'auth']);
-        Noty::captureEvent(['title' => 'Payment event', 'channel' => 'payments']);
-
-        Queue::assertPushed(SendNotyEvents::class, 1);
-    }
 }
-

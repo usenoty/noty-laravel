@@ -19,7 +19,7 @@ class NotyQueueStatusCommand extends Command
 
         $this->info('Noty Queue Status');
         $this->line('');
-        $this->line("Connection: " . ($connection ?: 'default'));
+        $this->line('Connection: ' . ($connection ?: 'default'));
         $this->line("Queue Name: {$queueName}");
         $this->line('');
 
@@ -28,21 +28,21 @@ class NotyQueueStatusCommand extends Command
             $this->line("Pending Jobs: {$size}");
         } catch (\Exception $e) {
             $this->error('Could not retrieve queue size: ' . $e->getMessage());
+
             return 1;
         }
 
         $this->line('');
         $this->info('Configuration:');
-        $this->line("  Batch Size: " . config('noty.queue.batch_size'));
-        $this->line("  Retry Times: " . config('noty.queue.retry_times'));
-        $this->line("  Retry Delay: " . config('noty.queue.retry_delay') . 's');
-        $this->line("  Concurrency: " . config('noty.queue.concurrency'));
+        $this->line('  Batch Size: ' . config('noty.queue.batch_size'));
+        $this->line('  Retry Times: ' . config('noty.queue.retry_times'));
+        $this->line('  Retry Delay: ' . config('noty.queue.retry_delay') . 's');
+        $this->line('  Concurrency: ' . config('noty.queue.concurrency'));
 
         $this->line('');
         $this->comment('To process the queue, run:');
-        $this->line("  php artisan queue:work" . ($connection ? " {$connection}" : '') . " --queue={$queueName}");
+        $this->line('  php artisan queue:work' . ($connection ? " {$connection}" : '') . " --queue={$queueName}");
 
         return 0;
     }
 }
-

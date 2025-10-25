@@ -12,8 +12,8 @@ class NotyChannel
     ) {}
 
     /**
-     * Send notification via Noty channel
-     * 
+     * Send notification via Noty channel.
+     *
      * Expects toNoty($notifiable): array in Notification class with:
      * [
      *   'title' => 'User registered',
@@ -23,6 +23,8 @@ class NotyChannel
      *   'actions' => [...],
      *   'tags' => [...]
      * ]
+     *
+     * @param mixed $notifiable
      */
     public function send($notifiable, Notification $notification): void
     {

@@ -11,9 +11,10 @@ class Client
     ) {}
 
     /**
-     * Capture and send an event (similar to Sentry's captureException/captureMessage)
-     * 
+     * Capture and send an event (similar to Sentry's captureException/captureMessage).
+     *
      * @param array $data Event data containing: title, message?, channel?, priority?, actions?, attachments?, tags?
+     *
      * @return ?string Event ID if sent
      */
     public function captureEvent(array $data): ?string
@@ -31,8 +32,13 @@ class Client
         return $this->transport->send($event);
     }
 
+    public function flush(float $timeoutSeconds = 1.0): void
+    {
+        $this->transport->flush($timeoutSeconds);
+    }
+
     /**
-     * Resolve channel name to channel ID
+     * Resolve channel name to channel ID.
      */
     protected function resolveChannel(?string $channelNameOrId): string
     {
@@ -49,10 +55,5 @@ class Client
 
         // Otherwise, treat it as a direct channel ID
         return $channelNameOrId;
-    }
-
-    public function flush(float $timeoutSeconds = 1.0): void
-    {
-        $this->transport->flush($timeoutSeconds);
     }
 }

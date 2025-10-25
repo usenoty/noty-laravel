@@ -2,9 +2,9 @@
 
 use Noty\Laravel\Support\Client;
 
-if (! function_exists('noty')) {
+if (!function_exists('noty')) {
     /**
-     * Get the Noty client instance
+     * Get the Noty client instance.
      */
     function noty(): Client
     {

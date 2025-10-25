@@ -2,6 +2,7 @@
 
 namespace Noty\Laravel\Tests;
 
+use Noty\Laravel\Facades\Noty;
 use Noty\Laravel\Providers\NotyServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -22,7 +23,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageAliases($app): array
     {
         return [
-            'Noty' => \Noty\Laravel\Facades\Noty::class,
+            'Noty' => Noty::class,
         ];
     }
 
@@ -41,4 +42,3 @@ abstract class TestCase extends Orchestra
         $app['config']->set('noty.default_priority', 'NORMAL');
     }
 }
-

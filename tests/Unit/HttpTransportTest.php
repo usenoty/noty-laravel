@@ -10,10 +10,15 @@ use Noty\Laravel\Support\Event;
 use Noty\Laravel\Support\Transports\HttpTransport;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class HttpTransportTest extends TestCase
 {
     /** @test */
-    public function it_constructs_with_correct_endpoint(): void
+    public function itConstructsWithCorrectEndpoint(): void
     {
         $transport = new HttpTransport(
             'http://localhost:3020',
@@ -25,10 +30,10 @@ class HttpTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_event_asynchronously(): void
+    public function itSendsEventAsynchronously(): void
     {
         $mock = new MockHandler([
-            new Response(200, [], '{"success": true}')
+            new Response(200, [], '{"success": true}'),
         ]);
 
         $handlerStack = HandlerStack::create($mock);
@@ -57,15 +62,16 @@ class HttpTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_includes_authorization_header_when_token_provided(): void
+    public function itIncludesAuthorizationHeaderWhenTokenProvided(): void
     {
         $requestHeaders = null;
 
         $mock = new MockHandler([
             function ($request) use (&$requestHeaders) {
                 $requestHeaders = $request->getHeaders();
+
                 return new Response(200);
-            }
+            },
         ]);
 
         $handlerStack = HandlerStack::create($mock);
@@ -91,7 +97,7 @@ class HttpTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_flushes_pending_promises(): void
+    public function itFlushesPendingPromises(): void
     {
         $mock = new MockHandler([
             new Response(200),
@@ -120,4 +126,3 @@ class HttpTransportTest extends TestCase
         $this->assertTrue(true);
     }
 }
-

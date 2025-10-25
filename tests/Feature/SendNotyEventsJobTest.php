@@ -5,10 +5,15 @@ namespace Noty\Laravel\Tests\Feature;
 use Noty\Laravel\Jobs\SendNotyEvents;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class SendNotyEventsJobTest extends TestCase
 {
     /** @test */
-    public function it_sends_single_event_successfully(): void
+    public function itSendsSingleEventSuccessfully(): void
     {
         $events = [
             [
@@ -17,8 +22,8 @@ class SendNotyEventsJobTest extends TestCase
                 'priority' => 'HIGH',
                 'actions' => [],
                 'attachments' => [],
-                'tags' => []
-            ]
+                'tags' => [],
+            ],
         ];
 
         $job = new SendNotyEvents(
@@ -34,7 +39,7 @@ class SendNotyEventsJobTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_multiple_events_concurrently(): void
+    public function itSendsMultipleEventsConcurrently(): void
     {
         $events = [
             ['channel' => 'ch1', 'title' => 'Event 1', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
@@ -53,13 +58,13 @@ class SendNotyEventsJobTest extends TestCase
     }
 
     /** @test */
-    public function it_respects_retry_configuration(): void
+    public function itRespectsRetryConfiguration(): void
     {
         config(['noty.queue.retry_times' => 5]);
         config(['noty.queue.retry_delay' => 30]);
 
         $events = [
-            ['channel' => 'ch1', 'title' => 'Test', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []]
+            ['channel' => 'ch1', 'title' => 'Test', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
         ];
 
         $job = new SendNotyEvents(
@@ -72,12 +77,12 @@ class SendNotyEventsJobTest extends TestCase
     }
 
     /** @test */
-    public function it_logs_failures_when_enabled(): void
+    public function itLogsFailuresWhenEnabled(): void
     {
         config(['noty.queue.log_failures' => true]);
 
         $events = [
-            ['channel' => 'ch1', 'title' => 'Test', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []]
+            ['channel' => 'ch1', 'title' => 'Test', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
         ];
 
         $job = new SendNotyEvents(
@@ -89,4 +94,3 @@ class SendNotyEventsJobTest extends TestCase
         $this->assertTrue(config('noty.queue.log_failures'));
     }
 }
-

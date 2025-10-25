@@ -8,6 +8,11 @@ use Noty\Laravel\Support\Event;
 use Noty\Laravel\Support\Transports\QueueTransport;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class QueueTransportTest extends TestCase
 {
     protected function setUp(): void
@@ -17,7 +22,7 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_batches_events_before_dispatching(): void
+    public function itBatchesEventsBeforeDispatching(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
@@ -38,7 +43,7 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_dispatches_remaining_events_on_flush(): void
+    public function itDispatchesRemainingEventsOnFlush(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
@@ -56,14 +61,14 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_uses_correct_queue_connection(): void
+    public function itUsesCorrectQueueConnection(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
             queueConfig: [
                 'batch_size' => 1,
                 'connection' => 'redis',
-                'queue_name' => 'noty-events'
+                'queue_name' => 'noty-events',
             ]
         );
 
@@ -75,7 +80,7 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_dispatches_on_destruct(): void
+    public function itDispatchesOnDestruct(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
@@ -93,7 +98,7 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_channel_id_on_send(): void
+    public function itReturnsChannelIdOnSend(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
@@ -106,7 +111,7 @@ class QueueTransportTest extends TestCase
     }
 
     /** @test */
-    public function it_handles_multiple_batches(): void
+    public function itHandlesMultipleBatches(): void
     {
         $transport = new QueueTransport(
             endpoint: 'http://localhost:3020/api/v1/events',
@@ -124,4 +129,3 @@ class QueueTransportTest extends TestCase
         Queue::assertPushed(SendNotyEvents::class, 2);
     }
 }
-

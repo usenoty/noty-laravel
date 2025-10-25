@@ -30,6 +30,12 @@ class QueueTransport implements TransportInterface
         $this->queueName = $queueConfig['queue_name'] ?? 'noty-events';
     }
 
+    public function __destruct()
+    {
+        // Ensure remaining events are flushed when object is destroyed
+        $this->flushBatch();
+    }
+
     public function send(Event $event): ?string
     {
         $this->batch[] = $event->toArray();
@@ -79,11 +85,5 @@ class QueueTransport implements TransportInterface
             }
             $this->batch = [];
         }
-    }
-
-    public function __destruct()
-    {
-        // Ensure remaining events are flushed when object is destroyed
-        $this->flushBatch();
     }
 }

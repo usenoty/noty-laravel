@@ -2,20 +2,25 @@
 
 namespace Noty\Laravel\Tests\Unit;
 
-use Mockery;
 use Noty\Laravel\NotyMessage;
+use Noty\Laravel\Support\Client;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class NotyMessageTest extends TestCase
 {
     protected function tearDown(): void
     {
-        Mockery::close();
+        \Mockery::close();
         parent::tearDown();
     }
 
     /** @test */
-    public function it_creates_a_message_with_title(): void
+    public function itCreatesAMessageWithTitle(): void
     {
         $message = NotyMessage::create('Test Title');
 
@@ -23,7 +28,7 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_builds_array_with_required_fields(): void
+    public function itBuildsArrayWithRequiredFields(): void
     {
         $data = NotyMessage::create('Test Title')->toArray();
 
@@ -36,19 +41,20 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_sets_message_and_channel(): void
+    public function itSetsMessageAndChannel(): void
     {
         $data = NotyMessage::create('Test')
             ->message('Test message')
             ->channel('auth')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals('Test message', $data['message']);
         $this->assertEquals('auth', $data['channel']);
     }
 
     /** @test */
-    public function it_sets_priority(): void
+    public function itSetsPriority(): void
     {
         $high = NotyMessage::create('Test')->priority(NotyMessage::PRIORITY_HIGH)->toArray();
         $low = NotyMessage::create('Test')->priority(NotyMessage::PRIORITY_LOW)->toArray();
@@ -58,11 +64,12 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_single_action(): void
+    public function itAddsSingleAction(): void
     {
         $data = NotyMessage::create('Test')
             ->action('View', 'http://example.com')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertCount(1, $data['actions']);
         $this->assertEquals('View', $data['actions'][0]['name']);
@@ -71,22 +78,24 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_action_with_browser_flag(): void
+    public function itAddsActionWithBrowserFlag(): void
     {
         $data = NotyMessage::create('Test')
             ->action('View', 'http://example.com', true)
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertTrue($data['actions'][0]['browser']);
     }
 
     /** @test */
-    public function it_adds_multiple_actions(): void
+    public function itAddsMultipleActions(): void
     {
         $data = NotyMessage::create('Test')
             ->action('View', 'http://example.com')
             ->action('Edit', 'http://example.com/edit')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertCount(2, $data['actions']);
         $this->assertEquals('View', $data['actions'][0]['name']);
@@ -94,38 +103,41 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_single_tag(): void
+    public function itAddsSingleTag(): void
     {
         $data = NotyMessage::create('Test')
             ->tag('user_id', '123')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals('123', $data['tags']['user_id']);
     }
 
     /** @test */
-    public function it_adds_multiple_tags(): void
+    public function itAddsMultipleTags(): void
     {
         $data = NotyMessage::create('Test')
             ->tags(['user_id' => '123', 'ip' => '127.0.0.1'])
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals('123', $data['tags']['user_id']);
         $this->assertEquals('127.0.0.1', $data['tags']['ip']);
     }
 
     /** @test */
-    public function it_adds_emoji_to_title(): void
+    public function itAddsEmojiToTitle(): void
     {
         $data = NotyMessage::create('Test')
             ->emoji('🎉')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals('🎉 Test', $data['title']);
     }
 
     /** @test */
-    public function it_omits_null_values_in_array(): void
+    public function itOmitsNullValuesInArray(): void
     {
         $data = NotyMessage::create('Test')->toArray();
 
@@ -134,15 +146,16 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_message_via_client(): void
+    public function itSendsMessageViaClient(): void
     {
-        $client = Mockery::mock(\Noty\Laravel\Support\Client::class);
+        $client = \Mockery::mock(Client::class);
         $client->shouldReceive('captureEvent')
             ->once()
-            ->with(Mockery::type('array'))
-            ->andReturn('event_id_123');
+            ->with(\Mockery::type('array'))
+            ->andReturn('event_id_123')
+        ;
 
-        app()->instance(\Noty\Laravel\Support\Client::class, $client);
+        app()->instance(Client::class, $client);
 
         $result = NotyMessage::create('Test')->send();
 
@@ -150,7 +163,7 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_handles_fluent_chaining(): void
+    public function itHandlesFluentChaining(): void
     {
         $data = NotyMessage::create('Test')
             ->message('Message')
@@ -159,7 +172,8 @@ class NotyMessageTest extends TestCase
             ->action('View', 'http://example.com', true)
             ->tag('order_id', '123')
             ->emoji('📦')
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals('📦 Test', $data['title']);
         $this->assertEquals('Message', $data['message']);
@@ -170,7 +184,7 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_omits_empty_tags_from_output(): void
+    public function itOmitsEmptyTagsFromOutput(): void
     {
         $data = NotyMessage::create('Test')->toArray();
 
@@ -179,12 +193,13 @@ class NotyMessageTest extends TestCase
     }
 
     /** @test */
-    public function it_passes_tag_values_as_is(): void
+    public function itPassesTagValuesAsIs(): void
     {
         $data = NotyMessage::create('Test')
             ->tag('user_id', 123)
             ->tag('count', 5)
-            ->toArray();
+            ->toArray()
+        ;
 
         $this->assertEquals(123, $data['tags']['user_id']);
         $this->assertEquals(5, $data['tags']['count']);

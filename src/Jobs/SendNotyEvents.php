@@ -5,7 +5,6 @@ namespace Noty\Laravel\Jobs;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Pool;
-use GuzzleHttp\Psr7\Request;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,16 +14,19 @@ use Illuminate\Support\Facades\Log;
 
 class SendNotyEvents implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public int $tries;
     public int $backoff;
 
     /**
-     * @param array $events Array of event data
-     * @param string $endpoint API endpoint
-     * @param string|null $token Bearer token
-     * @param array $httpOptions HTTP options
+     * @param array       $events      Array of event data
+     * @param string      $endpoint    API endpoint
+     * @param null|string $token       Bearer token
+     * @param array       $httpOptions HTTP options
      */
     public function __construct(
         protected array $events,
@@ -64,8 +66,10 @@ class SendNotyEvents implements ShouldQueue
                 ]);
             } catch (GuzzleException $e) {
                 $this->handleFailure($e, $this->events[0]);
+
                 throw $e; // Retry will be handled by Laravel Queue
             }
+
             return;
         }
 
@@ -96,6 +100,16 @@ class SendNotyEvents implements ShouldQueue
         $promise->wait();
     }
 
+    public function failed(\Throwable $exception): void
+    {
+        if (config('noty.queue.log_failures', true)) {
+            Log::error('Noty events permanently failed after all retries', [
+                'events_count' => count($this->events),
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
     protected function handleFailure($exception, ?array $event): void
     {
         if (config('noty.queue.log_failures', true)) {
@@ -106,15 +120,4 @@ class SendNotyEvents implements ShouldQueue
             ]);
         }
     }
-
-    public function failed(\Throwable $exception): void
-    {
-        if (config('noty.queue.log_failures', true)) {
-            Log::error('Noty events permanently failed after all retries', [
-                'events_count' => count($this->events),
-                'error' => $exception->getMessage(),
-            ]);
-        }
-    }
 }
-

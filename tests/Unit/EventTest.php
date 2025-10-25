@@ -5,10 +5,15 @@ namespace Noty\Laravel\Tests\Unit;
 use Noty\Laravel\Support\Event;
 use Noty\Laravel\Tests\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class EventTest extends TestCase
 {
     /** @test */
-    public function it_creates_event_with_required_fields(): void
+    public function itCreatesEventWithRequiredFields(): void
     {
         $event = new Event(
             channel: 'channel_123',
@@ -25,7 +30,7 @@ class EventTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_event_with_all_fields(): void
+    public function itCreatesEventWithAllFields(): void
     {
         $event = new Event(
             channel: 'channel_123',
@@ -47,7 +52,7 @@ class EventTest extends TestCase
     }
 
     /** @test */
-    public function it_converts_to_array_correctly(): void
+    public function itConvertsToArrayCorrectly(): void
     {
         $event = new Event(
             channel: 'channel_123',
@@ -69,7 +74,7 @@ class EventTest extends TestCase
     }
 
     /** @test */
-    public function it_excludes_null_message_from_array(): void
+    public function itExcludesNullMessageFromArray(): void
     {
         $event = new Event(
             channel: 'channel_123',
@@ -82,7 +87,7 @@ class EventTest extends TestCase
     }
 
     /** @test */
-    public function it_includes_message_when_provided(): void
+    public function itIncludesMessageWhenProvided(): void
     {
         $event = new Event(
             channel: 'channel_123',
@@ -96,4 +101,3 @@ class EventTest extends TestCase
         $this->assertEquals('Test message', $array['message']);
     }
 }
-
