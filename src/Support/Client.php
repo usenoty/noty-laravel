@@ -22,10 +22,10 @@ class Client
             channel: $this->resolveChannel($data['channel'] ?? null),
             title: $data['title'],
             message: $data['message'] ?? null,
-            priority: $data['priority'] ?? config('noty.default_priority', 'MEDIUM'),
+            priority: $data['priority'] ?? config('noty.default_priority', 'NORMAL'),
             actions: $data['actions'] ?? [],
             attachments: $data['attachments'] ?? [],
-            tags: $data['tags'] ?? []
+            tags: $data['tags'] ?? [],
         );
 
         return $this->transport->send($event);

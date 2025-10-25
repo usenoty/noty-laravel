@@ -16,7 +16,7 @@ class Event
         string $channel,
         string $title,
         ?string $message = null,
-        string $priority = 'MEDIUM',
+        string $priority = 'NORMAL',
         array $actions = [],
         array $attachments = [],
         array $tags = []
@@ -33,16 +33,29 @@ class Event
     public function toArray(): array
     {
         $data = [
-            'channel'     => $this->channel,
-            'title'       => $this->title,
-            'priority'    => $this->priority,
-            'actions'     => $this->actions,
-            'attachments' => $this->attachments,
-            'tags'        => $this->tags,
+            'channel' => $this->channel,
+            'title'   => $this->title,
         ];
 
+        // Only include optional fields if they have values
         if ($this->message !== null) {
             $data['message'] = $this->message;
+        }
+
+        if ($this->priority !== 'NORMAL') { // Only include if not default
+            $data['priority'] = $this->priority;
+        }
+
+        if (!empty($this->actions)) {
+            $data['actions'] = $this->actions;
+        }
+
+        if (!empty($this->attachments)) {
+            $data['attachments'] = $this->attachments;
+        }
+
+        if (!empty($this->tags)) {
+            $data['tags'] = $this->tags;
         }
 
         return $data;

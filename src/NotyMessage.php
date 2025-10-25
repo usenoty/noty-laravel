@@ -143,18 +143,31 @@ class NotyMessage
     {
         $data = [
             'title' => $this->getTitle(),
-            'priority' => $this->priority,
-            'actions' => $this->actions,
-            'attachments' => $this->attachments,
-            'tags' => $this->tags,
         ];
 
+        // Only include optional fields if they have values
         if ($this->message !== null) {
             $data['message'] = $this->message;
         }
 
         if ($this->channel !== null) {
             $data['channel'] = $this->channel;
+        }
+
+        if ($this->priority !== self::PRIORITY_NORMAL) {
+            $data['priority'] = $this->priority;
+        }
+
+        if (!empty($this->actions)) {
+            $data['actions'] = $this->actions;
+        }
+
+        if (!empty($this->attachments)) {
+            $data['attachments'] = $this->attachments;
+        }
+
+        if (!empty($this->tags)) {
+            $data['tags'] = $this->tags;
         }
 
         return $data;
@@ -167,4 +180,5 @@ class NotyMessage
     {
         return app(\Noty\Laravel\Support\Client::class)->captureEvent($this->toArray());
     }
+
 }

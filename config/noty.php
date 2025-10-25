@@ -58,5 +58,5 @@ return [
     'flush_timeout' => 1.0,
 
     // Default priority
-    'default_priority' => env('NOTY_DEFAULT_PRIORITY', 'MEDIUM'), // HIGH, MEDIUM, LOW
+    'default_priority' => env('NOTY_DEFAULT_PRIORITY', 'NORMAL'), // HIGH, NORMAL, LOW
 ];

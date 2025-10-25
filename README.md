@@ -49,7 +49,7 @@ NOTY_CHANNEL_PAYMENTS=channel_abc456pay
 
 # Transport (http or queue)
 NOTY_TRANSPORT=http
-NOTY_DEFAULT_PRIORITY=MEDIUM
+NOTY_DEFAULT_PRIORITY=NORMAL
 ```
 
 ## 🚀 Quick Start

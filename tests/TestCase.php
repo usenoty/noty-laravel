@@ -38,7 +38,7 @@ abstract class TestCase extends Orchestra
             'payments' => 'channel_payments',
         ]);
         $app['config']->set('noty.transport', 'http');
-        $app['config']->set('noty.default_priority', 'MEDIUM');
+        $app['config']->set('noty.default_priority', 'NORMAL');
     }
 }
 

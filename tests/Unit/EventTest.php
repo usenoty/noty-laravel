@@ -18,7 +18,7 @@ class EventTest extends TestCase
         $this->assertEquals('channel_123', $event->channel);
         $this->assertEquals('Test Event', $event->title);
         $this->assertNull($event->message);
-        $this->assertEquals('MEDIUM', $event->priority);
+        $this->assertEquals('NORMAL', $event->priority);
         $this->assertEmpty($event->actions);
         $this->assertEmpty($event->attachments);
         $this->assertEmpty($event->tags);

@@ -28,10 +28,11 @@ class NotyMessageTest extends TestCase
         $data = NotyMessage::create('Test Title')->toArray();
 
         $this->assertEquals('Test Title', $data['title']);
-        $this->assertEquals(NotyMessage::PRIORITY_NORMAL, $data['priority']);
-        $this->assertEquals([], $data['actions']);
-        $this->assertEquals([], $data['attachments']);
-        $this->assertEquals([], $data['tags']);
+        // Optional fields should not be included when empty/default
+        $this->assertArrayNotHasKey('priority', $data);
+        $this->assertArrayNotHasKey('actions', $data);
+        $this->assertArrayNotHasKey('attachments', $data);
+        $this->assertArrayNotHasKey('tags', $data);
     }
 
     /** @test */
@@ -166,5 +167,28 @@ class NotyMessageTest extends TestCase
         $this->assertEquals(NotyMessage::PRIORITY_HIGH, $data['priority']);
         $this->assertCount(1, $data['actions']);
         $this->assertEquals('123', $data['tags']['order_id']);
+    }
+
+    /** @test */
+    public function it_omits_empty_tags_from_output(): void
+    {
+        $data = NotyMessage::create('Test')->toArray();
+
+        // Empty tags should not be included in the output
+        $this->assertArrayNotHasKey('tags', $data);
+    }
+
+    /** @test */
+    public function it_passes_tag_values_as_is(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->tag('user_id', 123)
+            ->tag('count', 5)
+            ->toArray();
+
+        $this->assertEquals(123, $data['tags']['user_id']);
+        $this->assertEquals(5, $data['tags']['count']);
+        $this->assertIsInt($data['tags']['user_id']);
+        $this->assertIsInt($data['tags']['count']);
     }
 }

@@ -19,7 +19,7 @@ class NotyChannel
      *   'title' => 'User registered',
      *   'message' => 'A new user has registered',
      *   'channel' => 'auth', // Optional: channel name or ID
-     *   'priority' => 'HIGH', // Optional: HIGH, MEDIUM, LOW
+     *   'priority' => 'HIGH', // Optional: HIGH, NORMAL, LOW
      *   'actions' => [...],
      *   'tags' => [...]
      * ]

@@ -137,6 +137,30 @@ class ClientTest extends TestCase
         $this->assertTrue(true);
     }
 
+    /** @test */
+    public function it_passes_tags_as_is(): void
+    {
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(Mockery::on(function (Event $event) {
+                // Ensure tags are passed as-is without normalization
+                return is_array($event->tags) 
+                    && $event->tags['user_id'] === 123
+                    && $event->tags['count'] === 5;
+            }))
+            ->andReturn('channel_general');
+
+        $this->client->captureEvent([
+            'title' => 'Test',
+            'tags' => [
+                'user_id' => 123,
+                'count' => 5
+            ]
+        ]);
+
+        $this->assertTrue(true); // Assertion done in mock
+    }
+
 
 }
 
