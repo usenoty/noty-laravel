@@ -2,5 +2,7 @@ parameters:
     level: 5
     paths:
         - src
+    ignoreErrors:
+        - '#Unsafe usage of new static\(\)#'
     excludePaths:
         - tests

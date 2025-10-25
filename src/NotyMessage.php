@@ -23,7 +23,7 @@ class NotyMessage
      */
     public static function create(string $title): static
     {
-        return new self($title);
+        return new static($title);
     }
 
     /**
