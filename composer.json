@@ -27,12 +27,15 @@
       "orchestra/testbench": "^8.0|^9.0",
       "phpunit/phpunit": "^10.0",
       "mockery/mockery": "^1.5",
-      "phpstan/phpstan": "^2.1"
-    }, 
+      "phpstan/phpstan": "^2.1",
+      "friendsofphp/php-cs-fixer": "^3.89"
+    },
     "scripts": {
       "test": "vendor/bin/phpunit",
       "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
-      "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G --level=5"
+      "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G --level=5",
+      "cs-fix": "vendor/bin/php-cs-fixer fix",
+      "cs-check": "vendor/bin/php-cs-fixer fix --dry-run --diff"
     },
     "extra": {
       "laravel": {
