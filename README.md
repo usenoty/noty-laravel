@@ -4,20 +4,21 @@
 [![License](https://img.shields.io/packagist/l/usenoty/noty-laravel.svg)](https://packagist.org/packages/usenoty/noty-laravel)
 [![Tests](https://github.com/noty/noty-laravel/workflows/Tests/badge.svg)](https://github.com/noty/noty-laravel/actions)
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20|%208.2%20|%208.3-blue.svg)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20|%2011.x-red.svg)](https://laravel.com)
+[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20|%2011.x%20|%2012.x-red.svg)](https://laravel.com)
 
 A **non-blocking** notification channel for Laravel that sends events to Noty API. Perfect for tracking user activities, application events, and telemetry data without impacting your app's performance.
 
-## Features
+## ✨ Features
 
-✨ **Non-Blocking**: Uses async HTTP requests that don't slow down your app  
-🚀 **Laravel Integration**: Works seamlessly with Laravel's notification system  
-🛡️ **Fail-Silent**: Never breaks your app, even if the tracking service is down  
-⚡ **Auto-Flush**: Automatically sends pending events after response is sent  
-🎯 **Simple API**: Just like Sentry - use `captureEvent()` or Laravel notifications  
-💎 **Fluent Builder**: Type-safe `NotyMessage` class for elegant event building
+- 🚀 **Non-Blocking**: Uses async HTTP requests that don't slow down your app
+- 🛡️ **Fail-Silent**: Never breaks your app, even if the tracking service is down
+- ⚡ **Auto-Flush**: Automatically sends pending events after response is sent
+- 🎯 **Simple API**: Just like Sentry - use `captureEvent()` or Laravel notifications
+- 💎 **Fluent Builder**: Type-safe `NotyMessage` class for elegant event building
+- 🔄 **Queue Support**: Optional queue-based transport for high-volume applications
+- 📊 **Rich Events**: Support for actions, tags, attachments, and emojis
 
-## Installation
+## 📦 Installation
 
 Install via Composer:
 
@@ -31,7 +32,7 @@ Publish the configuration file:
 php artisan vendor:publish --provider="Noty\Laravel\Providers\NotyServiceProvider"
 ```
 
-## Configuration
+## ⚙️ Configuration
 
 Set your Noty API credentials in `.env`:
 
@@ -51,74 +52,27 @@ NOTY_TRANSPORT=http
 NOTY_DEFAULT_PRIORITY=MEDIUM
 ```
 
-## Usage
+## 🚀 Quick Start
 
-### Method 1: Using NotyMessage (Recommended - Fluent API)
+### Method 1: Using NotyMessage (Recommended)
 
-The `NotyMessage` class provides a fluent, type-safe API for building Noty events:
-
-```php
-use Noty\Laravel\NotyMessage;
-
-$banCommunityUrl = URL::temporarySignedRoute(
-    'noty.ban-community',
-    now()->addDay(),
-    ['community_id' => $community->id]
-);
-
-NotyMessage::create($event->name)
-    ->message('By community: ' . $community->name)
-    ->channel(config('services.noty.new_event_channel_id'))
-    ->priority(NotyMessage::PRIORITY_NORMAL)
-    ->action('View Event', $event->getFrontendUrl(), true)
-    ->action('Ban Community', $banCommunityUrl)
-    ->emoji('🗓️')
-    ->send();
-```
-
-More examples:
+The `NotyMessage` class provides a fluent, type-safe API:
 
 ```php
 use Noty\Laravel\NotyMessage;
 
-// Simple notification
 NotyMessage::create('Order Created')
+    ->message('Order #1234 has been created')
     ->channel('orders')
-    ->send();
-
-// With message and priority
-NotyMessage::create('Payment Received')
-    ->message('Payment of $100.00 received')
-    ->channel('payments')
     ->priority(NotyMessage::PRIORITY_HIGH)
+    ->action('View Order', route('orders.show', 1234), true)
+    ->tag('order_id', 1234)
+    ->tag('amount', 99.99)
+    ->emoji('🛒')
     ->send();
-
-// With tags
-NotyMessage::create('User Login')
-    ->tag('user_id', $user->id)
-    ->tag('ip_address', request()->ip())
-    ->tags(['browser' => 'Chrome', 'os' => 'MacOS'])
-    ->send();
-
-// With multiple actions
-NotyMessage::create('Order #123')
-    ->action('View Order', route('orders.show', 123), true)
-    ->action('Download Invoice', route('orders.invoice', 123))
-    ->send();
-
-// With emoji
-NotyMessage::create('New Event')
-    ->emoji('🎉')
-    ->message('A new event has been created')
-    ->send();
-
-// Priority constants
-NotyMessage::PRIORITY_HIGH    // High priority
-NotyMessage::PRIORITY_MEDIUM  // Medium priority (default)
-NotyMessage::PRIORITY_LOW     // Low priority
 ```
 
-### Method 2: Using Laravel Notifications (Recommended)
+### Method 2: Using Laravel Notifications
 
 Create a notification class:
 
@@ -129,8 +83,7 @@ use Illuminate\Notifications\Notification;
 
 class UserLoggedIn extends Notification
 {
-    public function __construct(private $user)
-    {}
+    public function __construct(private $user) {}
     
     public function via($notifiable)
     {
@@ -142,22 +95,18 @@ class UserLoggedIn extends Notification
         return [
             'title' => 'User logged in: ' . $this->user->email,
             'message' => 'User logged in from IP: ' . request()->ip(),
-            'channel' => 'auth', // Optional: channel name or ID
-            'priority' => 'HIGH', // Optional: HIGH, MEDIUM, LOW
+            'channel' => 'auth',
+            'priority' => 'HIGH',
             'actions' => [
                 [
                     'name' => 'View Profile',
                     'url' => route('users.show', $this->user),
                     'browser' => true
-                ],
-                [
-                    'name' => 'Suspend Account',
-                    'url' => route('admin.users.suspend', $this->user)
                 ]
             ],
             'tags' => [
                 'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
+                'user_id' => $this->user->id,
             ]
         ];
     }
@@ -175,14 +124,6 @@ $user->notify(new UserLoggedIn($user));
 ```php
 use Noty\Laravel\Facades\Noty;
 
-// Simple event
-Noty::captureEvent([
-    'title' => 'Order Created',
-    'message' => 'Order #1234 has been created',
-    'channel' => 'orders',
-]);
-
-// With actions and tags
 Noty::captureEvent([
     'title' => 'Payment Received',
     'message' => 'Payment of $100.00 received',
@@ -212,52 +153,132 @@ noty()->captureEvent([
 ]);
 ```
 
-## Channel Configuration
+## 📋 NotyMessage API Reference
 
-Channels can be configured in two ways:
+### Basic Usage
 
-### 1. Named Channels (Recommended)
+```php
+use Noty\Laravel\NotyMessage;
 
-Define channel names in `.env` and reference them in your code:
+// Simple notification
+NotyMessage::create('Order Created')
+    ->channel('orders')
+    ->send();
+
+// With message and priority
+NotyMessage::create('Payment Received')
+    ->message('Payment of $100.00 received')
+    ->channel('payments')
+    ->priority(NotyMessage::PRIORITY_HIGH)
+    ->send();
+```
+
+### Priority Constants
+
+```php
+NotyMessage::PRIORITY_HIGH    // High priority
+NotyMessage::PRIORITY_MEDIUM  // Medium priority (default)
+NotyMessage::PRIORITY_LOW     // Low priority
+```
+
+### Actions
+
+```php
+// Single action
+NotyMessage::create('Order #123')
+    ->action('View Order', route('orders.show', 123), true)
+    ->send();
+
+// Multiple actions
+NotyMessage::create('Order #123')
+    ->action('View Order', route('orders.show', 123), true)
+    ->action('Download Invoice', route('orders.invoice', 123))
+    ->send();
+
+// Actions array
+NotyMessage::create('Order #123')
+    ->actions([
+        ['name' => 'View Order', 'url' => route('orders.show', 123), 'browser' => true],
+        ['name' => 'Download Invoice', 'url' => route('orders.invoice', 123)]
+    ])
+    ->send();
+```
+
+### Tags
+
+```php
+// Single tag
+NotyMessage::create('User Login')
+    ->tag('user_id', $user->id)
+    ->send();
+
+// Multiple tags
+NotyMessage::create('User Login')
+    ->tag('user_id', $user->id)
+    ->tag('ip_address', request()->ip())
+    ->tags(['browser' => 'Chrome', 'os' => 'MacOS'])
+    ->send();
+```
+
+### Emojis
+
+```php
+NotyMessage::create('New Event')
+    ->emoji('🎉')
+    ->message('A new event has been created')
+    ->send();
+```
+
+## 🔧 Channel Configuration
+
+### Named Channels (Recommended)
+
+Define channel names in `.env`:
 
 ```env
 NOTY_CHANNEL_AUTH=channel_Arys9gID0J0HKv
 NOTY_CHANNEL_PAYMENTS=channel_abc123xyz
+NOTY_CHANNEL_ORDERS=channel_def456uvw
 ```
 
 Use in code:
-```php
-Noty::captureEvent([
-    'title' => 'Event',
-    'channel' => 'auth', // Uses channel_Arys9gID0J0HKv
-]);
-```
-
-### 2. Direct Channel IDs
-
-Or use the channel ID directly:
 
 ```php
-Noty::captureEvent([
-    'title' => 'Event',
-    'channel' => 'channel_Arys9gID0J0HKv',
-]);
+NotyMessage::create('Event')
+    ->channel('auth') // Uses channel_Arys9gID0J0HKv
+    ->send();
 ```
 
-## How It Works
+### Direct Channel IDs
 
-1. **Non-Blocking**: When you call `captureEvent()`, the event is queued but not sent immediately
-2. **Async Requests**: HTTP requests are made asynchronously using Guzzle promises
-3. **Auto-Flush**: After Laravel sends the response, pending events are flushed in the background
-4. **Fail-Silent**: If the Noty API is unreachable, your app continues working normally
-
-```
-Request → Your App Logic → Response to User → Flush Events (async)
-                ↓
-          captureEvent() stores promise
+```php
+NotyMessage::create('Event')
+    ->channel('channel_Arys9gID0J0HKv')
+    ->send();
 ```
 
-## Event Data Structure
+## 🚀 Transport Options
+
+### HTTP Transport (Default)
+
+Events are sent asynchronously via HTTP after the response is sent to the user.
+
+```env
+NOTY_TRANSPORT=http
+```
+
+### Queue Transport
+
+For high-volume applications, use queue transport:
+
+```env
+NOTY_TRANSPORT=queue
+NOTY_QUEUE_CONNECTION=redis
+NOTY_QUEUE_NAME=noty-events
+NOTY_QUEUE_BATCH_SIZE=10
+```
+
+## 📊 Event Data Structure
 
 Events are sent to the Noty API with the following structure:
 
@@ -282,7 +303,20 @@ Events are sent to the Noty API with the following structure:
 }
 ```
 
-## Full Example
+## 🔄 How It Works
+
+1. **Non-Blocking**: When you call `captureEvent()`, the event is queued but not sent immediately
+2. **Async Requests**: HTTP requests are made asynchronously using Guzzle promises
+3. **Auto-Flush**: After Laravel sends the response, pending events are flushed in the background
+4. **Fail-Silent**: If the Noty API is unreachable, your app continues working normally
+
+```
+Request → Your App Logic → Response to User → Flush Events (async)
+                ↓
+          captureEvent() stores promise
+```
+
+## 📝 Complete Example
 
 ```php
 use Noty\Laravel\Facades\Noty;
@@ -292,53 +326,47 @@ public function login(Request $request)
 {
     $user = Auth::user();
     
-    Noty::captureEvent([
-        'title' => 'User Login',
-        'message' => $user->email . ' logged in',
-        'channel' => 'auth',
-        'priority' => 'HIGH',
-        'actions' => [
-            [
-                'name' => 'View Profile',
-                'url' => route('users.show', $user),
-            ]
-        ],
-        'tags' => [
-            'ip' => request()->ip(),
-            'user_id' => $user->id,
-        ]
-    ]);
+    // Using NotyMessage (recommended)
+    NotyMessage::create('User Login')
+        ->message($user->email . ' logged in')
+        ->channel('auth')
+        ->priority(NotyMessage::PRIORITY_HIGH)
+        ->action('View Profile', route('users.show', $user), true)
+        ->tag('ip', request()->ip())
+        ->tag('user_id', $user->id)
+        ->emoji('🔐')
+        ->send();
     
     return redirect('/dashboard');
 }
 ```
 
-## Requirements
+## 🎯 When to Use Each Method
+
+- **NotyMessage**: Best for most cases - type-safe, fluent, and readable
+- **Laravel Notifications**: Best for reusable notifications sent to multiple users
+- **captureEvent**: Best for simple, one-off events or custom builders
+
+## 📋 Requirements
 
 - **PHP**: 8.1, 8.2, or 8.3
-- **Laravel**: 10.x or 11.x
+- **Laravel**: 10.x, 11.x, or 12.x
 - **Guzzle**: 7.x
 
-## Supported Versions
+## 🔄 Supported Versions
 
 | Laravel | PHP  | Status |
 |---------|------|--------|
+| 12.x    | 8.2+ | ✅ Active |
 | 11.x    | 8.2+ | ✅ Active |
 | 10.x    | 8.1+ | ✅ Active |
 | 9.x     | 8.0+ | ❌ Unsupported |
 | 8.x     | 7.3+ | ❌ Unsupported |
 
-## License
+## 📄 License
 
 MIT License
 
 ---
 
 Made with ❤️ for Laravel developers
-
-**When to use each method:**
-
-- **NotyMessage** (Method 1): Best for most cases - type-safe, fluent, and readable
-- **Laravel Notifications** (Method 2): Best for reusable notifications sent to multiple users
-- **captureEvent** (Method 3): Best for simple, one-off events or custom builders
-
