@@ -3,7 +3,7 @@ parameters:
     paths:
         - src
     ignoreErrors:
-        - '#Method Illuminate\\Support\\Facades\\Facade::__call() has no return type specified#'
-        - '#Method Illuminate\\Contracts\\Container\\BindingResolutionException::__call() has no return type specified#'
+        - '#Method Illuminate\\Support\\Facades\\Facade::__call\(\) has no return type specified#'
+        - '#Method Illuminate\\Contracts\\Container\\BindingResolutionException::__call\(\) has no return type specified#'
     excludePaths:
         - tests
