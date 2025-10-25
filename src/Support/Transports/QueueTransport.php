@@ -2,6 +2,7 @@
 
 namespace Noty\Laravel\Support\Transports;
 
+use Illuminate\Support\Facades\Log;
 use Noty\Laravel\Jobs\SendNotyEvents;
 use Noty\Laravel\Support\Event;
 
@@ -72,7 +73,7 @@ class QueueTransport implements TransportInterface
         } catch (\Throwable $e) {
             // Fail silently, but log if enabled
             if (config('noty.queue.log_failures', true)) {
-                \Log::warning('Failed to dispatch Noty events to queue', [
+                Log::warning('Failed to dispatch Noty events to queue', [
                     'error' => $e->getMessage(),
                 ]);
             }

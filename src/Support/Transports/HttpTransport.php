@@ -60,7 +60,7 @@ class HttpTransport implements TransportInterface
         }
 
         try {
-            Utils::settle($this->pending)->wait($timeoutSeconds);
+            Utils::settle($this->pending)->wait(true);
         } catch (\Throwable $e) {
             // yut
         } finally {
