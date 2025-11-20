@@ -366,8 +366,8 @@ public function login(Request $request)
 
 This package is thoroughly tested with:
 
-- **47 tests** covering all functionality
-- **91 assertions** ensuring reliability
+- **50 tests** covering all functionality
+- **100+ assertions** ensuring reliability
 - **PHPStan Level 5** static analysis
 - **Multiple PHP versions** (8.1, 8.2, 8.3, 8.4)
 - **Multiple Laravel versions** (10.x, 11.x)

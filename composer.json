@@ -2,7 +2,33 @@
     "name": "usenoty/noty-laravel",
     "description": "Non-blocking Noty Notification Channel for Laravel.",
     "type": "library",
+    "keywords": [
+        "laravel",
+        "noty",
+        "notifications",
+        "notification-channel",
+        "telemetry",
+        "events",
+        "tracking",
+        "non-blocking",
+        "async"
+    ],
+    "homepage": "https://github.com/usenoty/noty-laravel",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Noty",
+            "homepage": "https://noty.im"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/usenoty/noty-laravel/issues",
+        "source": "https://github.com/usenoty/noty-laravel"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/usenoty/noty-laravel.git"
+    },
     "autoload": {
       "psr-4": {
         "Noty\\Laravel\\": "src/"
@@ -47,6 +73,6 @@
         }
       }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
   }

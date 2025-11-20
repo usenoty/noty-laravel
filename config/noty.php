@@ -25,14 +25,14 @@ return [
     // http | queue
     'transport' => env('NOTY_TRANSPORT', 'http'),
 
-    // HTTP transport ayarları
+    // HTTP transport settings
     'http' => [
-        'timeout' => 0.5, // saniye
+        'timeout' => 0.5, // seconds
         'connect_timeout' => 0.25,
         'path' => '/api/v1/events',
     ],
 
-    // Queue transport ayarları
+    // Queue transport settings
     'queue' => [
         // Laravel queue connection (null = default, 'redis', 'database', 'sqs', etc.)
         'connection' => env('NOTY_QUEUE_CONNECTION', null),
@@ -54,7 +54,7 @@ return [
         'log_failures' => env('NOTY_QUEUE_LOG_FAILURES', true),
     ],
 
-    // flush davranışı (terminate sonrası maksimum bekleme)
+    // Flush behavior (maximum wait time after terminate)
     'flush_timeout' => 1.0,
 
     // Default priority
