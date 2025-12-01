@@ -16,19 +16,17 @@ This package follows [Semantic Versioning](https://semver.org/) (SemVer) princip
 
 | Version | Status | End of Life |
 |---------|--------|-------------|
+| 8.4     | ✅ Active | Dec 2027 |
 | 8.3     | ✅ Active | Dec 2026 |
 | 8.2     | ✅ Active | Dec 2025 |
-| 8.1     | ✅ Active | Nov 2025 |
-| 8.0     | ❌ Unsupported | Nov 2023 |
-| < 8.0   | ❌ Unsupported | N/A |
 
 ### Laravel Versions
 
 | Version | PHP | Status | End of Life |
 |---------|-----|--------|-------------|
+| 12.x    | 8.2+ | ✅ Active | Sep 2027 |
 | 11.x    | 8.2+ | ✅ Active | Sep 2026 |
 | 10.x    | 8.1+ | ✅ Active | Sep 2025 |
-| 9.x     | 8.0+ | ❌ Unsupported | Feb 2023 |
 
 ## Branching Strategy
 
@@ -54,8 +52,8 @@ Breaking changes will be:
 ## PHP/Laravel Compatibility
 
 The package is tested against:
-- PHP 8.1, 8.2, 8.3
-- Laravel 10.x and 11.x
+- PHP 8.2, 8.3, 8.4
+- Laravel 10.x, 11.x, and 12.x
 - With both lowest and highest dependency versions
 
 See `.github/workflows/tests.yml` for the complete test matrix.

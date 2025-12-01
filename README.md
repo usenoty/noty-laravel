@@ -349,14 +349,15 @@ public function login(Request $request)
 
 ## 📋 Requirements
 
-- **PHP**: 8.1, 8.2, 8.3, or 8.4
-- **Laravel**: 10.x or 11.x
+- **PHP**: 8.2, 8.3, or 8.4
+- **Laravel**: 10.x, 11.x, or 12.x
 - **Guzzle**: 7.x
 
 ## 🔄 Supported Versions
 
 | Laravel | PHP  | Status |
 |---------|------|--------|
+| 12.x    | 8.2+ | ✅ Active |
 | 11.x    | 8.2+ | ✅ Active |
 | 10.x    | 8.1+ | ✅ Active |
 | 9.x     | 8.0+ | ❌ Unsupported |
@@ -369,8 +370,8 @@ This package is thoroughly tested with:
 - **50 tests** covering all functionality
 - **100+ assertions** ensuring reliability
 - **PHPStan Level 5** static analysis
-- **Multiple PHP versions** (8.1, 8.2, 8.3, 8.4)
-- **Multiple Laravel versions** (10.x, 11.x)
+- **Multiple PHP versions** (8.2, 8.3, 8.4)
+- **Multiple Laravel versions** (10.x, 11.x, 12.x)
 
 ### Running Tests
 
