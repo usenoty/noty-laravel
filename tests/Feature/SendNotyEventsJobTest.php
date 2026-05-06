@@ -2,6 +2,9 @@
 
 namespace Noty\Laravel\Tests\Feature;
 
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Log;
 use Noty\Laravel\Jobs\SendNotyEvents;
 use Noty\Laravel\Tests\TestCase;
 
@@ -92,5 +95,176 @@ class SendNotyEventsJobTest extends TestCase
 
         // Test that job respects config
         $this->assertTrue(config('noty.queue.log_failures'));
+    }
+
+    /** @test */
+    public function handleReturnsEarlyWhenEventsArrayIsEmpty(): void
+    {
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [],
+            endpoint: 'http://127.0.0.1:1/api/v1/events',
+            httpOptions: ['timeout' => 0.1, 'connect_timeout' => 0.1]
+        );
+
+        // Should not throw, should not log, should not attempt HTTP
+        $job->handle();
+
+        Log::shouldNotHaveReceived('warning');
+        Log::shouldNotHaveReceived('error');
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function handleRethrowsExceptionForSingleEventOnUnreachableEndpoint(): void
+    {
+        config(['noty.queue.log_failures' => false]); // suppress log noise in test output
+
+        $job = new SendNotyEvents(
+            events: [
+                ['channel' => 'ch1', 'title' => 'fails', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+            ],
+            endpoint: 'http://127.0.0.1:1/api/v1/events',
+            httpOptions: ['timeout' => 0.2, 'connect_timeout' => 0.1]
+        );
+
+        $this->expectException(GuzzleException::class);
+
+        $job->handle();
+    }
+
+    /** @test */
+    public function handleLogsFailedSingleEventWhenLoggingEnabled(): void
+    {
+        config(['noty.queue.log_failures' => true]);
+
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [
+                ['channel' => 'ch1', 'title' => 'fails', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+            ],
+            endpoint: 'http://127.0.0.1:1/api/v1/events',
+            httpOptions: ['timeout' => 0.2, 'connect_timeout' => 0.1]
+        );
+
+        try {
+            $job->handle();
+        } catch (GuzzleException) {
+            // expected — single-event branch rethrows for queue retry
+        }
+
+        Log::shouldHaveReceived('warning')
+            ->once()
+            ->withArgs(function (string $message, array $context) {
+                return $message === 'Noty event failed'
+                    && isset($context['event'])
+                    && $context['event']['channel'] === 'ch1'
+                    && isset($context['error']);
+            })
+        ;
+    }
+
+    /** @test */
+    public function handleDoesNotLogFailedEventWhenLoggingDisabled(): void
+    {
+        config(['noty.queue.log_failures' => false]);
+
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [
+                ['channel' => 'ch1', 'title' => 'fails', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+            ],
+            endpoint: 'http://127.0.0.1:1/api/v1/events',
+            httpOptions: ['timeout' => 0.2, 'connect_timeout' => 0.1]
+        );
+
+        try {
+            $job->handle();
+        } catch (GuzzleException) {
+            // expected
+        }
+
+        Log::shouldNotHaveReceived('warning');
+        Log::shouldNotHaveReceived('error');
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function handleDoesNotRethrowForMultipleEventsBatchAndLogsEachFailure(): void
+    {
+        config(['noty.queue.log_failures' => true]);
+
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [
+                ['channel' => 'ch1', 'title' => 'a', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+                ['channel' => 'ch2', 'title' => 'b', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+            ],
+            endpoint: 'http://127.0.0.1:1/api/v1/events',
+            httpOptions: ['timeout' => 0.2, 'connect_timeout' => 0.1]
+        );
+
+        // Multi-event branch uses Pool with 'rejected' callback — does NOT rethrow.
+        $job->handle();
+
+        Log::shouldHaveReceived('warning')->twice();
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function failedLogsErrorWhenLoggingEnabled(): void
+    {
+        config(['noty.queue.log_failures' => true]);
+
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [
+                ['channel' => 'ch1', 'title' => 'a', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+                ['channel' => 'ch2', 'title' => 'b', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []],
+            ],
+            endpoint: 'http://localhost:3020/api/v1/events'
+        );
+
+        $job->failed(new \RuntimeException('permanent failure'));
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(function (string $message, array $context) {
+                return $message === 'Noty events permanently failed after all retries'
+                    && $context['events_count'] === 2
+                    && $context['error'] === 'permanent failure';
+            })
+        ;
+    }
+
+    /** @test */
+    public function failedDoesNotLogWhenLoggingDisabled(): void
+    {
+        config(['noty.queue.log_failures' => false]);
+
+        Log::spy();
+
+        $job = new SendNotyEvents(
+            events: [['channel' => 'ch1', 'title' => 'a', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []]],
+            endpoint: 'http://localhost:3020/api/v1/events'
+        );
+
+        $job->failed(new \RuntimeException('boom'));
+
+        Log::shouldNotHaveReceived('error');
+        Log::shouldNotHaveReceived('warning');
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function unusedConnectExceptionImportIsResolvable(): void
+    {
+        // Sanity check: ConnectException is part of GuzzleException hierarchy.
+        $this->assertTrue(is_subclass_of(ConnectException::class, GuzzleException::class));
     }
 }

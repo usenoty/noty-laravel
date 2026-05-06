@@ -148,6 +148,98 @@ class ClientTest extends TestCase
     }
 
     /** @test */
+    public function itUsesConfiguredDefaultChannelWhenChannelKeyOmitted(): void
+    {
+        // TestCase sets channels.default => 'general' and list.general => 'channel_general'
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(\Mockery::on(function (Event $event) {
+                return $event->channel === 'channel_general';
+            }))
+            ->andReturn('channel_general')
+        ;
+
+        $this->client->captureEvent(['title' => 'no channel given']);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itUsesConfiguredDefaultChannelWhenChannelIsNull(): void
+    {
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(\Mockery::on(function (Event $event) {
+                return $event->channel === 'channel_general';
+            }))
+            ->andReturn('channel_general')
+        ;
+
+        $this->client->captureEvent([
+            'title' => 'explicit null channel',
+            'channel' => null,
+        ]);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itPassesUnknownChannelNameThroughAsDirectId(): void
+    {
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(\Mockery::on(function (Event $event) {
+                return $event->channel === 'channel_unmapped_xyz';
+            }))
+            ->andReturn('channel_unmapped_xyz')
+        ;
+
+        $this->client->captureEvent([
+            'title' => 'direct id',
+            'channel' => 'channel_unmapped_xyz',
+        ]);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itAppliesDefaultPriorityFromConfigWhenOmitted(): void
+    {
+        config(['noty.default_priority' => 'LOW']);
+
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(\Mockery::on(function (Event $event) {
+                return $event->priority === 'LOW';
+            }))
+            ->andReturn('channel_general')
+        ;
+
+        $this->client->captureEvent(['title' => 'no priority']);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itPassesEmptyArraysWhenOptionalFieldsOmitted(): void
+    {
+        $this->transport->shouldReceive('send')
+            ->once()
+            ->with(\Mockery::on(function (Event $event) {
+                return $event->actions === []
+                    && $event->attachments === []
+                    && $event->tags === []
+                    && $event->message === null;
+            }))
+            ->andReturn('channel_general')
+        ;
+
+        $this->client->captureEvent(['title' => 'minimal']);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
     public function itPassesTagsAsIs(): void
     {
         $this->transport->shouldReceive('send')

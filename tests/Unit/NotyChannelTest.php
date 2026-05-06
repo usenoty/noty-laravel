@@ -97,6 +97,104 @@ class NotyChannelTest extends TestCase
 
         $this->assertTrue(true);
     }
+
+    /** @test */
+    public function itDoesNotAddNotifiableTagsWhenNotifiableHasNoGetKey(): void
+    {
+        $notification = new TestNotification();
+        $notifiable = new \stdClass(); // plain object, no getKey()
+
+        $this->client->shouldReceive('captureEvent')
+            ->once()
+            ->with(\Mockery::on(function ($data) {
+                return $data['tags']['custom'] === 'value'
+                    && !isset($data['tags']['notifiable_type'])
+                    && !isset($data['tags']['notifiable_id']);
+            }))
+            ->andReturn('channel_x')
+        ;
+
+        $this->channel->send($notifiable, $notification);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itDoesNotAddNotifiableTagsWhenNotifiableIsScalar(): void
+    {
+        // Routing notifications (Notification::route('noty', 'foo')) can result in
+        // a non-object notifiable. The channel should treat that gracefully.
+        $notification = new TestNotification();
+
+        $this->client->shouldReceive('captureEvent')
+            ->once()
+            ->with(\Mockery::on(function ($data) {
+                return !isset($data['tags']['notifiable_type'])
+                    && !isset($data['tags']['notifiable_id']);
+            }))
+            ->andReturn('channel_x')
+        ;
+
+        $this->channel->send('not-an-object', $notification);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itAppliesDefaultTitleAndEmptyDefaultsWhenToNotyReturnsEmpty(): void
+    {
+        $notification = new MinimalNotification();
+        $notifiable = new TestNotifiable();
+
+        $this->client->shouldReceive('captureEvent')
+            ->once()
+            ->with(\Mockery::on(function ($data) {
+                return $data['title'] === 'Notification'
+                    && $data['message'] === null
+                    && $data['channel'] === null
+                    && $data['priority'] === null
+                    && $data['actions'] === []
+                    && $data['attachments'] === []
+                    // notifiable_* still added because TestNotifiable has getKey()
+                    && $data['tags']['notifiable_type'] === TestNotifiable::class
+                    && $data['tags']['notifiable_id'] === '123';
+            }))
+            ->andReturn('channel_x')
+        ;
+
+        $this->channel->send($notifiable, $notification);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /** @test */
+    public function itStringifiesNotifiableIdEvenWhenIntegerKey(): void
+    {
+        $notification = new TestNotification();
+        $notifiable = new TestNotifiable();
+        $notifiable->id = 999; // int
+
+        $this->client->shouldReceive('captureEvent')
+            ->once()
+            ->with(\Mockery::on(function ($data) {
+                return $data['tags']['notifiable_id'] === '999'
+                    && is_string($data['tags']['notifiable_id']);
+            }))
+            ->andReturn('channel_x')
+        ;
+
+        $this->channel->send($notifiable, $notification);
+
+        $this->addToAssertionCount(1);
+    }
+}
+
+class MinimalNotification extends Notification
+{
+    public function toNoty($notifiable): array
+    {
+        return []; // explicitly empty — exercises every default branch
+    }
 }
 
 class TestNotifiable

@@ -206,4 +206,115 @@ class NotyMessageTest extends TestCase
         $this->assertIsInt($data['tags']['user_id']);
         $this->assertIsInt($data['tags']['count']);
     }
+
+    /** @test */
+    public function itAddsActionsViaArrayMethod(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->actions([
+                ['name' => 'View', 'url' => 'https://example.com'],
+                ['name' => 'Edit', 'url' => 'https://example.com/edit', 'browser' => true],
+            ])
+            ->toArray()
+        ;
+
+        $this->assertCount(2, $data['actions']);
+        $this->assertSame('View', $data['actions'][0]['name']);
+        $this->assertFalse($data['actions'][0]['browser']); // default when key omitted
+        $this->assertSame('Edit', $data['actions'][1]['name']);
+        $this->assertTrue($data['actions'][1]['browser']);
+    }
+
+    /** @test */
+    public function actionsBulkMethodAppendsToExistingActions(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->action('First', 'https://a')
+            ->actions([
+                ['name' => 'Second', 'url' => 'https://b'],
+            ])
+            ->toArray()
+        ;
+
+        $this->assertCount(2, $data['actions']);
+        $this->assertSame('First', $data['actions'][0]['name']);
+        $this->assertSame('Second', $data['actions'][1]['name']);
+    }
+
+    /** @test */
+    public function itAddsAttachment(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->attachment(['file' => 'invoice.pdf', 'size' => 1024])
+            ->toArray()
+        ;
+
+        $this->assertArrayHasKey('attachments', $data);
+        $this->assertCount(1, $data['attachments']);
+        $this->assertSame('invoice.pdf', $data['attachments'][0]['file']);
+        $this->assertSame(1024, $data['attachments'][0]['size']);
+    }
+
+    /** @test */
+    public function itAccumulatesMultipleAttachments(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->attachment(['file' => 'a.pdf'])
+            ->attachment(['file' => 'b.pdf'])
+            ->toArray()
+        ;
+
+        $this->assertCount(2, $data['attachments']);
+        $this->assertSame('a.pdf', $data['attachments'][0]['file']);
+        $this->assertSame('b.pdf', $data['attachments'][1]['file']);
+    }
+
+    /** @test */
+    public function itOmitsAttachmentsKeyWhenEmpty(): void
+    {
+        $data = NotyMessage::create('Test')->toArray();
+
+        $this->assertArrayNotHasKey('attachments', $data);
+    }
+
+    /** @test */
+    public function tagsBulkMergesWithExistingTags(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->tag('a', 1)
+            ->tags(['b' => 2, 'c' => 3])
+            ->tag('d', 4)
+            ->toArray()
+        ;
+
+        $this->assertSame([
+            'a' => 1,
+            'b' => 2,
+            'c' => 3,
+            'd' => 4,
+        ], $data['tags']);
+    }
+
+    /** @test */
+    public function tagsBulkOverwritesDuplicateKeys(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->tag('user_id', 1)
+            ->tags(['user_id' => 2])
+            ->toArray()
+        ;
+
+        $this->assertSame(2, $data['tags']['user_id']);
+    }
+
+    /** @test */
+    public function priorityIsExcludedWhenLeftAtNormalDefault(): void
+    {
+        $data = NotyMessage::create('Test')
+            ->priority(NotyMessage::PRIORITY_NORMAL)
+            ->toArray()
+        ;
+
+        $this->assertArrayNotHasKey('priority', $data);
+    }
 }

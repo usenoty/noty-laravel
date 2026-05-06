@@ -100,4 +100,82 @@ class EventTest extends TestCase
         $this->assertArrayHasKey('message', $array);
         $this->assertEquals('Test message', $array['message']);
     }
+
+    /** @test */
+    public function toArrayExcludesNormalPriority(): void
+    {
+        $event = new Event(channel: 'ch', title: 't', priority: 'NORMAL');
+
+        $this->assertArrayNotHasKey('priority', $event->toArray());
+    }
+
+    /** @test */
+    public function toArrayIncludesNonNormalPriority(): void
+    {
+        $high = new Event(channel: 'ch', title: 't', priority: 'HIGH');
+        $low = new Event(channel: 'ch', title: 't', priority: 'LOW');
+
+        $this->assertSame('HIGH', $high->toArray()['priority']);
+        $this->assertSame('LOW', $low->toArray()['priority']);
+    }
+
+    /** @test */
+    public function toArrayExcludesEmptyActionsAttachmentsAndTags(): void
+    {
+        $event = new Event(
+            channel: 'ch',
+            title: 't',
+            actions: [],
+            attachments: [],
+            tags: []
+        );
+
+        $array = $event->toArray();
+
+        $this->assertArrayNotHasKey('actions', $array);
+        $this->assertArrayNotHasKey('attachments', $array);
+        $this->assertArrayNotHasKey('tags', $array);
+    }
+
+    /** @test */
+    public function toArrayIncludesActionsAttachmentsAndTagsWhenPopulated(): void
+    {
+        $event = new Event(
+            channel: 'ch',
+            title: 't',
+            actions: [['name' => 'View', 'url' => 'https://x', 'browser' => true]],
+            attachments: [['file' => 'a.pdf']],
+            tags: ['k' => 'v']
+        );
+
+        $array = $event->toArray();
+
+        $this->assertSame(
+            [['name' => 'View', 'url' => 'https://x', 'browser' => true]],
+            $array['actions']
+        );
+        $this->assertSame([['file' => 'a.pdf']], $array['attachments']);
+        $this->assertSame(['k' => 'v'], $array['tags']);
+    }
+
+    /** @test */
+    public function toArrayKeysOrderRequiredFieldsFirst(): void
+    {
+        $event = new Event(
+            channel: 'ch',
+            title: 't',
+            message: 'm',
+            priority: 'HIGH',
+            tags: ['k' => 'v']
+        );
+
+        $keys = array_keys($event->toArray());
+
+        // channel and title come first, in that order; rest follow conditional inclusion order.
+        $this->assertSame('channel', $keys[0]);
+        $this->assertSame('title', $keys[1]);
+        $this->assertContains('message', $keys);
+        $this->assertContains('priority', $keys);
+        $this->assertContains('tags', $keys);
+    }
 }
