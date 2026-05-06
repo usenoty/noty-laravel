@@ -125,8 +125,8 @@ class HttpTransportTest extends TestCase
 
         $transport->flush(1.0);
 
-        // If we get here without exception, flush worked
-        $this->assertTrue(true);
+        // If we get here without exception, flush worked.
+        $this->addToAssertionCount(1);
     }
 
     /** @test */

@@ -23,13 +23,9 @@ class NotyServiceProvider extends ServiceProvider
             $token = $config['token'] ?? null;
             $httpOptions = $config['http'];
 
-            // Build endpoint
-            $path = $httpOptions['path'] ?? '/api/v1/events';
-            $endpoint = rtrim($dsn, '/') . $path;
-
             return match ($config['transport'] ?? 'http') {
                 'queue' => new QueueTransport(
-                    $endpoint,
+                    HttpTransport::buildEndpoint($dsn, $httpOptions),
                     $config['queue'],
                     $token,
                     $httpOptions

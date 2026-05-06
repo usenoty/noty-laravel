@@ -4,31 +4,15 @@ namespace Noty\Laravel\Support;
 
 class Event
 {
-    public string $channel;
-    public string $title;
-    public ?string $message;
-    public string $priority;
-    public array $actions;
-    public array $attachments;
-    public array $tags;
-
     public function __construct(
-        string $channel,
-        string $title,
-        ?string $message = null,
-        string $priority = 'NORMAL',
-        array $actions = [],
-        array $attachments = [],
-        array $tags = []
-    ) {
-        $this->channel = $channel;
-        $this->title = $title;
-        $this->message = $message;
-        $this->priority = $priority;
-        $this->actions = $actions;
-        $this->attachments = $attachments;
-        $this->tags = $tags;
-    }
+        public readonly string $channel,
+        public readonly string $title,
+        public readonly ?string $message = null,
+        public readonly string $priority = 'NORMAL',
+        public readonly array $actions = [],
+        public readonly array $attachments = [],
+        public readonly array $tags = [],
+    ) {}
 
     public function toArray(): array
     {
@@ -37,12 +21,11 @@ class Event
             'title' => $this->title,
         ];
 
-        // Only include optional fields if they have values
         if ($this->message !== null) {
             $data['message'] = $this->message;
         }
 
-        if ($this->priority !== 'NORMAL') { // Only include if not default
+        if ($this->priority !== 'NORMAL') {
             $data['priority'] = $this->priority;
         }
 

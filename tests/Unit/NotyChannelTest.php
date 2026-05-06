@@ -45,7 +45,7 @@ class NotyChannelTest extends TestCase
 
         $this->channel->send($notifiable, $notification);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */
@@ -70,7 +70,7 @@ class NotyChannelTest extends TestCase
 
         $this->channel->send($notifiable, $notification);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */
@@ -83,7 +83,7 @@ class NotyChannelTest extends TestCase
 
         $this->channel->send($notifiable, $notification);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */
@@ -95,7 +95,7 @@ class NotyChannelTest extends TestCase
         // Should not throw exception
         $this->channel->send($notifiable, $notification);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */

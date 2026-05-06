@@ -112,7 +112,7 @@ class ClientTest extends TestCase
             'channel' => 'auth',
         ]);
 
-        $this->assertTrue(true); // Assertion done in mock
+        $this->addToAssertionCount(1); // Mockery expectation is the real assertion
     }
 
     /** @test */
@@ -131,7 +131,7 @@ class ClientTest extends TestCase
             'channel' => 'channel_direct_id_xyz',
         ]);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */
@@ -144,7 +144,7 @@ class ClientTest extends TestCase
 
         $this->client->flush(1.0);
 
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     /** @test */
@@ -261,6 +261,6 @@ class ClientTest extends TestCase
             ],
         ]);
 
-        $this->assertTrue(true); // Assertion done in mock
+        $this->addToAssertionCount(1); // Mockery expectation is the real assertion
     }
 }
