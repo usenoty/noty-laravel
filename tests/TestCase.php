@@ -2,12 +2,25 @@
 
 namespace Noty\Laravel\Tests;
 
+use Illuminate\Testing\TestResponse;
 use Noty\Laravel\Facades\Noty;
 use Noty\Laravel\Providers\NotyServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+    /**
+     * Cross-version shim: testbench-core writes to static::$latestResponse in
+     * setUp / tearDown. The property used to live on
+     * Illuminate\Foundation\Testing\Concerns\MakesHttpRequests (which Orchestra's
+     * TestCase pulls in), but Laravel 12 removed it from that trait — leaving
+     * testbench's static access pointing at an undeclared property. Declaring
+     * it here gives the chain a stable home across Laravel 10 / 11 / 12.
+     *
+     * @var null|TestResponse
+     */
+    public static $latestResponse;
+
     protected function setUp(): void
     {
         parent::setUp();
