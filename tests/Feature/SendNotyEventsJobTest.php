@@ -100,7 +100,7 @@ class SendNotyEventsJobTest extends TestCase
     /** @test */
     public function handleReturnsEarlyWhenEventsArrayIsEmpty(): void
     {
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [],
@@ -139,7 +139,7 @@ class SendNotyEventsJobTest extends TestCase
     {
         config(['noty.queue.log_failures' => true]);
 
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [
@@ -171,7 +171,7 @@ class SendNotyEventsJobTest extends TestCase
     {
         config(['noty.queue.log_failures' => false]);
 
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [
@@ -197,7 +197,7 @@ class SendNotyEventsJobTest extends TestCase
     {
         config(['noty.queue.log_failures' => true]);
 
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [
@@ -211,7 +211,12 @@ class SendNotyEventsJobTest extends TestCase
         // Multi-event branch uses Pool with 'rejected' callback — does NOT rethrow.
         $job->handle();
 
-        Log::shouldHaveReceived('warning')->twice();
+        // Filter to our specific message — Laravel's HandleExceptions on older
+        // versions can also emit curl-level warnings via the Log facade.
+        Log::shouldHaveReceived('warning')
+            ->withArgs(fn (...$args) => ($args[0] ?? null) === 'Noty event failed')
+            ->twice()
+        ;
         $this->addToAssertionCount(1);
     }
 
@@ -220,7 +225,7 @@ class SendNotyEventsJobTest extends TestCase
     {
         config(['noty.queue.log_failures' => true]);
 
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [
@@ -247,7 +252,7 @@ class SendNotyEventsJobTest extends TestCase
     {
         config(['noty.queue.log_failures' => false]);
 
-        Log::spy();
+        $this->spyLog();
 
         $job = new SendNotyEvents(
             events: [['channel' => 'ch1', 'title' => 'a', 'priority' => 'HIGH', 'actions' => [], 'attachments' => [], 'tags' => []]],
@@ -266,5 +271,21 @@ class SendNotyEventsJobTest extends TestCase
     {
         // Sanity check: ConnectException is part of GuzzleException hierarchy.
         $this->assertTrue(is_subclass_of(ConnectException::class, GuzzleException::class));
+    }
+
+    /**
+     * Robust Log spy. Connection-refused errors emitted via curl can route through
+     * Laravel's HandleExceptions, which calls Log::channel('deprecations')->warning(...).
+     * On older Laravel (10.0.0 / testbench 8.0.0), the default Log::spy() returns null
+     * from channel(), and the chained warning() call fatals. Returning self keeps the
+     * chain resolvable on every supported version.
+     */
+    private function spyLog(): void
+    {
+        Log::spy()
+            ->shouldReceive('channel')
+            ->andReturnSelf()
+            ->byDefault()
+        ;
     }
 }
